@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка — Вариант 1: Классика</title>
+<style>
+  /* Вариант 1: Классическая рамка — деревянная, тёплые тона, как настоящая рамка на столе */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#2e2620;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .frame{
+    background:linear-gradient(145deg,#7a5a3a,#5a3f28 60%,#6b4c30);
+    border-radius:18px;
+    padding:28px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6), inset 0 2px 4px rgba(255,255,255,.25), inset 0 -4px 8px rgba(0,0,0,.35);
+    border:3px solid #8a6a48;
+    position:relative;
+  }
+  .frame::after{ /* внутренняя фаска рамки */
+    content:'';position:absolute;inset:14px;border:2px solid rgba(0,0,0,.25);border-radius:10px;pointer-events:none;
+  }
+  .screen{
+    width:min(90vw,800px);
+    aspect-ratio:16/10;
+    background:#111;
+    border-radius:6px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:inset 0 0 60px rgba(0,0,0,.8);
+  }
+  .photo{
+    position:absolute;inset:0;
+    background-size:100% 100%;   /* тянем фото на весь экран */
+    transition:opacity 1.2s ease, transform 8s ease;
+    opacity:0;
+    transform:scale(1.05);
+  }
+  .photo.active{opacity:1;transform:scale(1)}
+  .date{
+    position:absolute;bottom:18px;right:22px;
+    color:rgba(255,255,255,.9);
+    font-size:14px;letter-spacing:1px;
+    text-shadow:0 1px 6px rgba(0,0,0,.8);
+    font-style:italic;
+    background:rgba(0,0,0,.25);
+    padding:5px 12px;border-radius:4px;
+  }
+  .hint{
+    position:absolute;top:14px;left:0;right:0;text-align:center;
+    color:rgba(255,255,255,.5);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="screen" id="screen">
+    <div class="hint">📷 семейный архив</div>
+    <div class="date" id="date"></div>
+  </div>
+</div>
+<script>
+// Набросок: цветные градиенты вместо реальных фото
+const PHOTOS = [
+  {bg:'linear-gradient(135deg,#f7c8b8,#fdded0)', label:'Отпуск · июль 2025'},
+  {bg:'linear-gradient(135deg,#a8d8ea,#d9eef7)', label:'Море · август'},
+  {bg:'linear-gradient(135deg,#b5d6b5,#dcefdc)', label:'Дача · май'},
+  {bg:'linear-gradient(135deg,#fde8c8,#fdf3e0)', label:'День рождения · март'},
+  {bg:'linear-gradient(135deg,#c9b6e4,#e6dcf5)', label:'Выпускной · июнь'},
+];
+let i=0;
+function show(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.photo')[i].classList.add('active');
+  document.getElementById('date').textContent=PHOTOS[i].label;
+  i=(i+1)%PHOTOS.length;
+}
+const screen=document.getElementById('screen');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;screen.appendChild(d);});
+show();
+setInterval(show,5000);
+</script>
+</body>
+</html>

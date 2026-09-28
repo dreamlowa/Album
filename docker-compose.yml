@@ -1,0 +1,77 @@
+# Семейный архив фото и видео — Docker Compose
+# Запуск: docker compose up -d --build
+# Все секреты берутся из файла .env (см. .env.example)
+
+services:
+  # ---------- База данных ----------
+  db:
+    image: postgres:16-alpine
+    container_name: archive-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------- Объектное хранилище (S3) ----------
+  minio:
+    image: minio/minio:latest
+    container_name: archive-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "${MINIO_PORT:-9000}:9000"       # публичный порт для presigned URL
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------- API (Node.js / Express) ----------
+  api:
+    build: ./backend
+    container_name: archive-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # Внутри docker-сети MinIO доступен по имени контейнера
+      S3_ENDPOINT: minio
+      S3_PORT: 9000
+      S3_USE_SSL: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - uploads_tmp:/tmp/uploads   # временная папка для конвертации видео
+
+  # ---------- Фронтенд + обратный прокси ----------
+  web:
+    build: ./frontend
+    container_name: archive-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  db_data:
+  minio_data:
+  uploads_tmp:

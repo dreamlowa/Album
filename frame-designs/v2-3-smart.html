@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка v2 — 3. Смарт</title>
+<style>
+  /* Концепт 3 «Смарт»: как современные умные рамки (Aura/Nixplay) —
+     фото во весь экран + виджет-врезка с погодой/временем/календарём в углу, всегда виден.
+     Чисто, современно, полезно. */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#101418;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh}
+  .stage{position:fixed;inset:0;overflow:hidden;background:#0d0f12}
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1.4s ease;
+  }
+  .photo.active{opacity:1}
+  .widget{
+    position:fixed;top:24px;left:24px;z-index:6;
+    background:rgba(10,14,18,.55);backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:20px;padding:18px 24px;color:#fff;
+    min-width:170px;box-shadow:0 8px 32px rgba(0,0,0,.35);
+  }
+  .clock{font-size:clamp(30px,3.6vw,52px);font-weight:200;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums}
+  .date{font-size:13px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:6px}
+  .weather{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px;color:rgba(255,255,255,.9)}
+  .weather em{font-style:normal;font-size:22px}
+  .hint{position:fixed;bottom:14px;right:20px;z-index:6;color:rgba(255,255,255,.35);font-size:11px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="widget">
+  <div class="clock" id="clock">--:--</div>
+  <div class="date" id="date"></div>
+  <div class="weather"><em>🌤</em><span>+18° · ясно</span></div>
+</div>
+<div class="hint">family archive</div>
+<script>
+const PHOTOS=[
+  'linear-gradient(160deg,#16324f,#2a5470,#4387a9)',
+  'linear-gradient(140deg,#2e3a1f,#4a6b2f,#6b9a48)',
+  'linear-gradient(155deg,#3b2c4f,#66497a,#9a6ab0)',
+  'linear-gradient(150deg,#512c1f,#8a4a2a,#b5743f)',
+];
+const stage=document.getElementById('stage');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p;stage.appendChild(d);});
+const wd=document.getElementById('widget');
+let i=0;
+function show(){document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.photo')[i].classList.add('active');i=(i+1)%PHOTOS.length;}
+setInterval(()=>{const n=new Date();
+  document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('date').textContent=n.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+  // «погода» слегка меняется
+  const temps=['+18° · ясно','+16° · облачно','+21° · переменная облачность','+14° · дождь'];
+  wd.querySelector('.weather span').textContent=temps[Math.floor(Date.now()/60000)%temps.length];
+},1000);
+show();setInterval(show,12000);
+</script>
+</body>
+</html>

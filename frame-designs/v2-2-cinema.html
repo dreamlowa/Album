@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка v2 — 2. Кино</title>
+<style>
+  /* Концепт 2 «Кино»: чёрные кинематографичные полосы сверху/снизу, фото во весь экран между ними,
+     переходы как смена кадров в фильме — затемнение. Лёгкий шум плёнки. Внизу подпись-титр. */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;font-family:Georgia,'Times New Roman',serif;overflow:hidden;height:100vh}
+  .stage{position:fixed;inset:0;overflow:hidden;background:#000}
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1.6s ease;
+    filter:saturate(1.08) contrast(1.02);
+  }
+  .photo.active{opacity:1}
+  .bars{position:fixed;left:0;right:0;height:11vh;background:#000;z-index:5}
+  .bar-top{top:0}.bar-bottom{bottom:0}
+  .title{
+    position:fixed;bottom:12vh;left:0;right:0;text-align:center;z-index:6;
+    color:rgba(255,255,255,.75);font-size:clamp(15px,1.8vw,22px);font-style:italic;
+    letter-spacing:2px;text-shadow:0 2px 10px rgba(0,0,0,.8);
+    opacity:0;transition:opacity 1.2s ease;
+  }
+  .title.show{opacity:1}
+  /* шум плёнки */
+  .grain{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="bars bar-top"></div>
+<div class="bars bar-bottom"></div>
+<div class="grain"></div>
+<div class="title" id="title"></div>
+<script>
+const PHOTOS=[
+  {bg:'linear-gradient(160deg,#14213d,#3a5a8c,#6b92c2)',t:'«Море. Семья. Лето»'},
+  {bg:'linear-gradient(150deg,#2d1b12,#7a4a2a,#b07d45)',t:'«Закат на даче»'},
+  {bg:'linear-gradient(140deg,#0f3d2e,#1f6b4a,#37a07a)',t:'«Поход в горы»'},
+  {bg:'linear-gradient(155deg,#3a1d2e,#7a3a5a,#b05a84)',t:'«День рождения бабушки»'},
+];
+const stage=document.getElementById('stage');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;stage.appendChild(d);});
+let i=0;
+function show(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.photo')[i].classList.add('active');
+  const t=document.getElementById('title');
+  t.classList.remove('show');
+  setTimeout(()=>{t.textContent=PHOTOS[i].t;t.classList.add('show');},700);
+  i=(i+1)%PHOTOS.length;
+}
+show();setInterval(show,10000);
+</script>
+</body>
+</html>

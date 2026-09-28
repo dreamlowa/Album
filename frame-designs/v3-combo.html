@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка v3 — Комбо (собери свой дизайн)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0c10;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh;color:#fff}
+  .stage{position:fixed;inset:0;overflow:hidden;background:#000}
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1.4s ease;
+    filter:saturate(1.06) contrast(1.02);
+  }
+  .photo.active{opacity:1}
+  .photo.kb{animation:kenburns 20s ease-out forwards}
+  @keyframes kenburns{
+    from{transform:scale(1) translate(0,0)}
+    to{transform:scale(1.12) translate(-1.2%,-0.8%)}
+  }
+
+  /* Кинополосы */
+  .bars{position:fixed;left:0;right:0;height:10vh;background:#000;z-index:4;transition:height .4s}
+  .bar-top{top:0}.bar-bottom{bottom:0}
+  .bars.off{height:0}
+
+  /* Прогресс-бары (истории) */
+  .progress{position:fixed;top:0;left:0;right:0;display:flex;gap:6px;padding:14px;z-index:8}
+  .progress.off{display:none}
+  .prog{flex:1;height:3px;background:rgba(255,255,255,.28);border-radius:2px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:#fff}
+  .prog.cur i{animation:fill var(--speed,12s) linear forwards}
+  @keyframes fill{to{width:100%}}
+
+  /* Виджет смарт */
+  .widget{
+    position:fixed;top:22px;right:22px;z-index:7;
+    background:rgba(8,12,18,.5);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:18px;padding:14px 20px;color:#fff;
+    min-width:150px;text-align:right;
+    box-shadow:0 8px 32px rgba(0,0,0,.35);
+    transition:opacity .4s;
+  }
+  .widget.off{opacity:0;pointer-events:none}
+  .widget .cl{font-size:clamp(26px,3.2vw,46px);font-weight:200;letter-spacing:2px;line-height:1;font-variant-numeric:tabular-nums}
+  .widget .dt{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:5px}
+  .widget .wx{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:10px;font-size:14px;color:rgba(255,255,255,.9)}
+
+  /* Титры-подпись (кино) */
+  .title{
+    position:fixed;bottom:11vh;left:0;right:0;text-align:center;z-index:7;
+    color:rgba(255,255,255,.8);font-family:Georgia,serif;font-style:italic;
+    font-size:clamp(15px,1.8vw,22px);letter-spacing:2px;
+    text-shadow:0 2px 10px rgba(0,0,0,.8);
+    opacity:0;transition:opacity 1.2s;
+    padding:0 30px;
+  }
+  .title.on{opacity:1}
+  .title.off{display:none}
+
+  /* Часы-тающее HUD (заставка) снизу справа */
+  .hud-clock{
+    position:fixed;right:26px;bottom:24px;z-index:6;
+    color:rgba(255,255,255,.92);font-size:clamp(30px,3.6vw,52px);font-weight:200;
+    letter-spacing:3px;text-shadow:0 2px 20px rgba(0,0,0,.55);
+    font-variant-numeric:tabular-nums;line-height:1;
+    opacity:0;transition:opacity 1.2s;
+  }
+  .hud-clock.on{opacity:1}
+  .hud-clock.off{display:none}
+
+  /* Шум плёнки */
+  .grain{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .grain.off{display:none}
+
+  /* Панель настроек */
+  .panel{
+    position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:20;
+    background:rgba(10,14,20,.92);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.14);border-radius:16px;
+    padding:16px;width:190px;box-shadow:0 16px 50px rgba(0,0,0,.5);
+    max-height:86vh;overflow-y:auto;
+  }
+  .panel h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}
+  .opt{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;font-size:14px}
+  .opt input{width:17px;height:17px;accent-color:#6482a6;cursor:pointer}
+  .opt span{flex:1}
+  .speed{margin-top:10px}
+  .speed label{font-size:12px;color:rgba(255,255,255,.6);display:block;margin-bottom:4px}
+  .speed select{width:100%;padding:6px;border-radius:8px;background:#1a2028;color:#fff;border:1px solid rgba(255,255,255,.2)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="bars bar-top" id="barsT"></div>
+<div class="bars bar-bottom" id="barsB"></div>
+<div class="grain" id="grain"></div>
+<div class="progress" id="progress"></div>
+<div class="widget" id="widget">
+  <div class="cl" id="wclock">--:--</div>
+  <div class="dt" id="wdate"></div>
+  <div class="wx"><span id="wicon">🌤</span><span id="wtemp">+18° · ясно</span></div>
+</div>
+<div class="title" id="title"></div>
+<div class="hud-clock" id="hudclock">--:--</div>
+
+<!-- Панель настроек -->
+<div class="panel">
+  <h3>Объединённый дизайн</h3>
+  <label class="opt"><input type="checkbox" id="o-kb" checked><span>Кен Бёрнс (зум)</span></label>
+  <label class="opt"><input type="checkbox" id="o-bars" checked><span>Кинополосы</span></label>
+  <label class="opt"><input type="checkbox" id="o-prog" checked><span>Прогресс-бары</span></label>
+  <label class="opt"><input type="checkbox" id="o-widget" checked><span>Виджет время/погода</span></label>
+  <label class="opt"><input type="checkbox" id="o-title" checked><span>Титры-подпись</span></label>
+  <label class="opt"><input type="checkbox" id="o-hud" checked><span>Часы (тающие)</span></label>
+  <label class="opt"><input type="checkbox" id="o-grain"><span>Шум плёнки</span></label>
+  <div class="speed">
+    <label>Скорость</label>
+    <select id="o-speed">
+      <option value="6">6 сек</option>
+      <option value="10" selected>10 сек</option>
+      <option value="15">15 сек</option>
+      <option value="25">25 сек</option>
+    </select>
+  </div>
+</div>
+
+<script>
+const PHOTOS=[
+  {bg:'linear-gradient(160deg,#0f2027,#203a43,#2c5364)',t:'«Море. Семья. Лето»',d:'июль 2025',w:'🌤 +18° · ясно'},
+  {bg:'linear-gradient(150deg,#2d1b12,#7a4a2a,#b07d45)',t:'«Закат на даче»',d:'август 2025',w:'🌇 +21° · ясно'},
+  {bg:'linear-gradient(140deg,#0f3d2e,#1f6b4a,#37a07a)',t:'«Поход в горы»',d:'май 2025',w:'⛅ +16° · облачно'},
+  {bg:'linear-gradient(155deg,#3a1d2e,#7a3a5a,#b05a84)',t:'«День рождения бабушки»',d:'март 2025',w:'🌧 +12° · дождь'},
+  {bg:'linear-gradient(160deg,#16324f,#2a5470,#4387a9)',t:'«Наша поездка»',d:'июнь 2025',w:'🌤 +19° · ясно'},
+];
+const stage=document.getElementById('stage');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;stage.appendChild(d);});
+
+let i=0, speed=10;
+function applyOptions(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.toggle('kb', document.getElementById('o-kb').checked));
+  document.getElementById('barsT').classList.toggle('off', !document.getElementById('o-bars').checked);
+  document.getElementById('barsB').classList.toggle('off', !document.getElementById('o-bars').checked);
+  document.getElementById('progress').classList.toggle('off', !document.getElementById('o-prog').checked);
+  document.getElementById('widget').classList.toggle('off', !document.getElementById('o-widget').checked);
+  document.getElementById('title').classList.toggle('off', !document.getElementById('o-title').checked);
+  document.getElementById('hudclock').classList.toggle('off', !document.getElementById('o-hud').checked);
+  document.getElementById('grain').classList.toggle('off', !document.getElementById('o-grain').checked);
+  speed=parseInt(document.getElementById('o-speed').value,10);
+  document.documentElement.style.setProperty('--speed', speed+'s');
+  clearInterval(timer); timer=setInterval(next,speed*1000);
+}
+['o-kb','o-bars','o-prog','o-widget','o-title','o-hud','o-grain','o-speed'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',applyOptions);
+});
+
+function buildProg(cur){
+  const p=document.getElementById('progress');
+  p.innerHTML='';
+  PHOTOS.forEach((_,k)=>{
+    const d=document.createElement('div');d.className='prog'+(k===cur?' cur':'');
+    d.innerHTML=k<cur?'<i style="width:100%"></i>':(k===cur?`<i style="width:0;animation:fill ${speed}s linear forwards"></i>`:'');
+    p.appendChild(d);
+  });
+}
+function next(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));
+  const ph=document.querySelectorAll('.photo')[i];
+  ph.classList.add('active');
+  ph.style.animation='none'; void ph.offsetWidth;
+  if(document.getElementById('o-kb').checked) ph.classList.add('kb'); // перезапуск анимации
+  document.getElementById('title').textContent=PHOTOS[i].t;
+  document.getElementById('wicon').textContent=PHOTOS[i].w.split(' ')[0];
+  document.getElementById('wtemp').textContent=PHOTOS[i].w.split(' ').slice(1).join(' ');
+  buildProg(i);
+  i=(i+1)%PHOTOS.length;
+}
+setInterval(()=>{const n=new Date();
+  const s=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('wclock').textContent=s;
+  document.getElementById('hudclock').textContent=s;
+  document.getElementById('wdate').textContent=n.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+},1000);
+// Тающие часы HUD
+setInterval(()=>{
+  const h=document.getElementById('hudclock');
+  if(document.getElementById('o-hud').checked){
+    h.classList.add('on');
+    setTimeout(()=>h.classList.remove('on'),5000);
+  }
+},30000);
+let timer=setInterval(next,speed*1000);
+next(); applyOptions();
+</script>
+</body>
+</html>

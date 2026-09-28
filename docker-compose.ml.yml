@@ -1,0 +1,23 @@
+# ============================================================
+# Дополнительный compose-файл: ML-сервис распознавания лиц
+# Запуск (из той же папки, что и основной compose):
+#   docker compose -f docker-compose.yml -f docker-compose.ml.yml up -d --build
+#
+# Сервис присоединяется к общей docker-сети проекта автоматически
+# (одинаковый project name), наружу порты не открывает.
+# ============================================================
+
+services:
+  ml:
+    build: ./ml
+    container_name: archive-ml
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      S3_ENDPOINT: minio
+      S3_PORT: 9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      S3_BUCKET: ${S3_BUCKET:-media}
+      FACE_POLL_INTERVAL: 30
+      FACE_CONFIDENCE: 0.5

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка — Вариант 5: Тёплый уют</title>
+<style>
+  /* Вариант 5: «Тёплый уют» — мягкая ламповая рамка, скругления, тёплый свет, как вечером дома */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1512;font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .frame{
+    background:linear-gradient(160deg,#8a6a4b,#5f4630 60%,#6b4c30);
+    border-radius:32px;                     /* мягкие скругления */
+    padding:30px;
+    box-shadow:0 40px 90px rgba(0,0,0,.65), inset 0 3px 5px rgba(255,255,255,.2), inset 0 -5px 10px rgba(0,0,0,.4);
+    border:2px solid rgba(255,255,255,.12);
+  }
+  .screen{
+    width:min(90vw,780px);
+    aspect-ratio:4/3;                       /* почти квадратная, как классическое фото */
+    background:#14100d;
+    border-radius:16px;
+    overflow:hidden;position:relative;
+    box-shadow:inset 0 0 80px rgba(0,0,0,.85), 0 0 40px rgba(255,180,90,.08); /* тёплое свечение */
+  }
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    filter:saturate(1.05) sepia(.08);       /* лёгкий тёплый фильтр */
+    transition:opacity 2s ease;
+    opacity:0;
+  }
+  .photo.active{opacity:1}
+  .sub{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(transparent,rgba(0,0,0,.7));
+    color:#f5eee6;
+    padding:30px 20px 14px;
+    font-size:17px;font-style:italic;
+    letter-spacing:.5px;text-shadow:0 1px 4px rgba(0,0,0,.7);
+  }
+  .cal{
+    position:absolute;top:14px;left:18px;z-index:6;
+    color:rgba(255,250,240,.95);font-size:13px;letter-spacing:1px;
+    background:rgba(0,0,0,.35);padding:4px 12px;border-radius:99px;backdrop-filter:blur(3px);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="screen" id="screen">
+    <div class="cal" id="cal"></div>
+    <div class="sub" id="sub"></div>
+  </div>
+</div>
+<script>
+const PHOTOS=[
+  {bg:'linear-gradient(135deg,#e8b98a,#c98d5a)',label:'«Наш сад в августе»'},
+  {bg:'linear-gradient(135deg,#d9a06b,#a87448)',label:'«Вечер на даче»'},
+  {bg:'linear-gradient(135deg,#b55e3a,#7d3b25)',label:'«Осенняя прогулка»'},
+  {bg:'linear-gradient(135deg,#f0cf9a,#d3a05f)',label:'«Утренний кофе»'},
+];
+const screen=document.getElementById('screen');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;screen.appendChild(d);});
+let i=0;
+function show(){
+  screen.querySelectorAll('.photo').forEach(x=>x.classList.remove('active'));
+  screen.querySelectorAll('.photo')[i].classList.add('active');
+  document.getElementById('sub').textContent=PHOTOS[i].label;
+  i=(i+1)%PHOTOS.length;
+}
+// Календарь (текущая дата)
+const now=new Date();
+document.getElementById('cal').textContent=now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+show();setInterval(show,7000);
+</script>
+</body>
+</html>

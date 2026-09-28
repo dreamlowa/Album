@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Превью раскладок — Семейный альбом</title>
+<style>
+  :root {
+    --ds-accent: #4d6bfe;
+    --ds-accent-dark: #3b50e0;
+    --ds-bg: #f7f8fa;
+    --ds-surface: #ffffff;
+    --ds-border: #e6e9ef;
+    --ds-text: #1f2329;
+    --ds-muted: #8b93a1;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(20,24,31,0.04), 0 8px 24px rgba(20,24,31,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', 'Roboto', Arial, sans-serif;
+    background: var(--ds-bg);
+    color: var(--ds-text);
+  }
+
+  /* Панель переключения */
+  .mode-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: center; gap: 10px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(230,233,239,0.8);
+  }
+  .mode-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--ds-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ds-muted);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .mode-btn:hover { border-color: var(--ds-accent); color: var(--ds-accent); }
+  .mode-btn.active { background: var(--ds-accent); color: #fff; border-color: var(--ds-accent); box-shadow: 0 4px 12px rgba(77,107,254,.25); }
+  .mode-note { text-align: center; color: var(--ds-muted); font-size: 13px; padding: 10px; }
+
+  /* Общие блоки */
+  .preview-wrap { max-width: 960px; margin: 0 auto; padding: 16px 14px 60px; }
+  .ph-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .ph-logo { font-weight: 800; color: var(--ds-accent); font-size: 18px; }
+  .ph-nav { display: flex; gap: 6px; }
+  .ph-nav span {
+    padding: 5px 12px; border-radius: 10px; font-size: 13px; color: var(--ds-muted);
+    background: var(--ds-bg);
+  }
+  .ph-nav span.on { background: var(--ds-accent); color: #fff; }
+  .ph-user { width: 30px; height: 30px; border-radius: 50%; background: var(--ds-accent); }
+
+  .big-label {
+    display: flex; align-items: center; gap: 8px;
+    margin: 22px 2px 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--ds-muted);
+  }
+  .big-label::after { content:''; flex: 1; height: 1px; background: var(--ds-border); }
+
+  .block { background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .block-t {
+    padding: 14px 18px 8px;
+    font-size: 15px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--ds-text);
+  }
+  .block-t small { color: var(--ds-muted); font-weight: 500; font-size: 12px; }
+
+  /* Слайдер */
+  .hero { position: relative; height: 300px; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; }
+  .hero .bg { position: absolute; inset: 0; background: linear-gradient(120deg,#4d6bfe,#8f9cf8 55%,#34c77b); }
+  .hero::after { content: 'Последний альбом — «Отпуск 2025»'; position: absolute; left: 20px; bottom: 18px; color:#fff; font-weight:700; font-size: 17px; text-shadow:0 2px 8px rgba(0,0,0,.4); }
+  .hero .dots { position:absolute; top:12px; left:50%; transform:translateX(-50%); display:flex; gap:6px; }
+  .hero .dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.5); display:block; }
+  .hero .dots i.on { background:#fff; width:20px; border-radius:5px; }
+
+  /* Статистика */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .st {
+    background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--radius-md);
+    padding: 14px 10px; text-align: center;
+  }
+  .st b { font-size: 22px; color: var(--ds-accent); display: block; }
+  .st span { font-size: 12px; color: var(--ds-muted); }
+
+  /* Поиск и теги */
+  .search { width: 100%; padding: 11px 14px; border: 1px solid var(--ds-border); border-radius: 12px; margin-bottom: 10px; font-size: 14px; background:#fff; color: var(--ds-text); }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tagc { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--ds-border); background:#fff; font-size: 12px; color: var(--ds-muted); }
+  .tagc.on { background: var(--ds-accent); color:#fff; border-color: var(--ds-accent); }
+
+  /* Карточки альбома */
+  .g { display:grid; grid-template-columns: repeat(2,1fr); gap: 2px; }
+  .g div { aspect-ratio: 1 / 1; }
+  .t1 { background: linear-gradient(135deg, #4d6bfe, #7d8cff); }
+  .t2 { background: linear-gradient(135deg, #34c77b, #7ee0af); }
+  .t3 { background: linear-gradient(135deg, #f2a25c, #ffc891); }
+  .t4 { background: linear-gradient(135deg, #e05b8a, #ff9fc0); }
+
+  .album-row { display:flex; flex-direction: column; gap: 12px; }
+  .album { background: var(--ds-surface); border:1px solid var(--ds-border); border-radius: var(--radius-lg); overflow:hidden; cursor:pointer; transition: box-shadow .2s; }
+  .album:hover { box-shadow: var(--shadow-card); }
+  .album .meta { padding: 12px 14px; }
+  .album .meta b { font-size: 15px; display:block; }
+  .album .meta span { font-size: 12px; color: var(--ds-muted); }
+
+  /* ============ ВАРИАНТ А: вертикальная стопка ============ */
+  .layout-a .row { display: block; }
+  .layout-a .stack { display: flex; flex-direction: column; gap: 12px; }
+  .layout-a .album-row { gap: 12px; }
+  .layout-a .stats { grid-template-columns: repeat(4, 1fr); }
+
+  /* ============ ВАРИАНТ Б: сетка-карточки ============ */
+  .layout-b .grid3 { display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .layout-b .wide2 { display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .layout-b .hero { height: 220px; }
+  .layout-b .stats { grid-template-columns: repeat(2, 1fr); }
+  .layout-b .album-row { display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .layout-b .card { background: var(--ds-surface); border:1px solid var(--ds-border); border-radius: var(--radius-lg); padding: 16px; }
+  .layout-b .card h4 { margin: 0 0 8px; font-size: 14px; color: var(--ds-muted); }
+  .layout-b .card .mini { font-size: 13px; color: var(--ds-text); line-height: 1.5; }
+
+  /* ============ ВАРИАНТ В: асимметрия ============ */
+  .layout-v .asym { display:grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start; }
+  .layout-v .left-big { display:flex; flex-direction:column; gap: 14px; }
+  .layout-v .right-col { display:flex; flex-direction:column; gap: 14px; }
+  .layout-v .hero { height: 260px; }
+  .layout-v .big-card { background: var(--ds-surface); border:1px solid var(--ds-border); border-radius: var(--radius-lg); padding: 16px; }
+  .layout-v .big-card h4 { margin: 10px 0 4px; font-size: 14px; }
+  .layout-v .big-card p { margin:0; font-size: 13px; color: var(--ds-muted); }
+  .layout-v .stats { grid-template-columns: repeat(2, 1fr); }
+  .layout-v .album-row { gap: 14px; }
+  .layout-v .mini-card { background: var(--ds-surface); border:1px solid var(--ds-border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 13px; color: var(--ds-muted); }
+  .layout-v .mini-card b { color: var(--ds-text); }
+
+  /* Таймлайн и мелочи */
+  .tl { margin-top: 18px; }
+  .tl .row-year { margin-bottom: 12px; }
+  .tl .y { font-weight: 700; margin-bottom: 6px; }
+  .tl .thumbs { display:grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .tl .thumbs div { aspect-ratio: 1; border-radius: 8px; }
+  .til { background: var(--ds-surface); border:1px solid var(--ds-border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 13px; color: var(--ds-muted); display:flex; justify-content:space-between; align-items:center; }
+  .til b { color: var(--ds-text); }
+
+  .ph-foot { text-align:center; color: var(--ds-muted); font-size: 12px; padding: 22px 0 8px; }
+  .view { display: none; }
+  .view.show { display: block; }
+
+  @media (max-width: 720px) {
+    .layout-b .grid3, .layout-b .wide2, .layout-b .album-row { grid-template-columns: repeat(2, 1fr); }
+    .layout-v .asym { grid-template-columns: 1fr; }
+    .layout-b .album-row { grid-template-columns: repeat(2,1fr); }
+    .tl .thumbs { grid-template-columns: repeat(4, 1fr); }
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .hero { height: 200px; }
+  }
+/* ---------- Палитры ---------- */
+  body[data-palette="deepseek"] {
+    --ds-accent: #4d6bfe; --ds-accent-dark: #3b50e0; --ds-bg: #f7f8fa;
+    --ds-surface: #ffffff; --ds-border: #e6e9ef; --ds-text: #1f2329; --ds-muted: #8b93a1;
+  }
+  body[data-palette="warm"] {
+    --ds-accent: #e8733a; --ds-accent-dark: #cb5d28; --ds-bg: #faf5f0;
+    --ds-surface: #fffdfb; --ds-border: #f0e2d5; --ds-text: #2b2119; --ds-muted: #9c8a78;
+  }
+  body[data-palette="teal"] {
+    --ds-accent: #0ea5a0; --ds-accent-dark: #0b8782; --ds-bg: #effafa;
+    --ds-surface: #ffffff; --ds-border: #d8efee; --ds-text: #122b2a; --ds-muted: #6f9290;
+  }
+  body[data-palette="forest"] {
+    --ds-accent: #3d9b6b; --ds-accent-dark: #2f7f55; --ds-bg: #f3f8f4;
+    --ds-surface: #ffffff; --ds-border: #dfece1; --ds-text: #1c2a20; --ds-muted: #7d9885;
+  }
+  body[data-palette="blush"] {
+    --ds-accent: #c05fe0; --ds-accent-dark: #a349c2; --ds-bg: #faf5fc;
+    --ds-surface: #ffffff; --ds-border: #eedaf2; --ds-text: #2b1f2e; --ds-muted: #967f9e;
+  }
+  body[data-palette="vk"] {
+    --ds-accent: #1877f2; --ds-accent-dark: #0f5cba; --ds-bg: #f0f2f5;
+    --ds-surface: #ffffff; --ds-border: #e4e6eb; --ds-text: #050505; --ds-muted: #818c99;
+  }
+  body[data-palette="night"] {
+    --ds-accent: #7d8cff; --ds-accent-dark: #95a3ff; --ds-bg: #0f1117;
+    --ds-surface: #191c25; --ds-border: #2a2f3a; --ds-text: #e8ebf2; --ds-muted: #7f8899;
+  }
+  .g .t1 { background: linear-gradient(135deg, var(--ds-accent), color-mix(in srgb, var(--ds-accent) 60%, white)); }
+  .g .t2 { background: linear-gradient(135deg, #34c77b, #7ee0af); }
+  .g .t3 { background: linear-gradient(135deg, #f2a25c, #ffc891); }
+  .g .t4 { background: linear-gradient(135deg, #e05b8a, #ff9fc0); }
+  .hero .bg { background: linear-gradient(120deg, var(--ds-accent), color-mix(in srgb, var(--ds-accent) 55%, white) 55%, #34c77b); }
+
+  .color-bar {
+    position: sticky; top: 54px; z-index: 49;
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(230,233,239,0.6);
+  }
+  .color-btn { display:flex; align-items:center; gap:8px; padding: 6px 12px; border:1px solid var(--ds-border); border-radius:12px; background:#fff; cursor:pointer; font-size:13px; font-weight:600; color:var(--ds-muted); transition:all .2s; }
+  .color-btn:hover { box-shadow: var(--shadow-card); color: var(--ds-text); }
+  .color-btn.active { outline:2px solid var(--ds-accent); color:var(--ds-text); }
+  .dot { width:16px; height:16px; border-radius:50%; border:1px solid rgba(0,0,0,.1); }
+</style>
+</head>
+<body data-palette="deepseek">
+
+<div class="mode-bar">
+  <button class="mode-btn active" data-mode="a">Вариант А · Стопка</button>
+  <button class="mode-btn" data-mode="b">Вариант Б · Сетка</button>
+  <button class="mode-btn" data-mode="v">Вариант В · Асимметрия</button>
+</div>
+<div class="color-bar" id="colorBar">
+  <button class="color-btn active" data-palette="deepseek"><span class="dot" style="background:#4d6bfe"></span>DeepSeek</button>
+  <button class="color-btn" data-palette="warm"><span class="dot" style="background:#e8733a"></span>Тёплый</button>
+  <button class="color-btn" data-palette="teal"><span class="dot" style="background:#0ea5a0"></span>Бирюза</button>
+  <button class="color-btn" data-palette="forest"><span class="dot" style="background:#3d9b6b"></span>Лес</button>
+  <button class="color-btn" data-palette="blush"><span class="dot" style="background:#c05fe0"></span>Розовый</button>
+  <button class="color-btn" data-palette="vk"><span class="dot" style="background:#1877f2"></span>Классика VK</button>
+  <button class="color-btn" data-palette="night"><span class="dot" style="background:#7d8cff"></span>Ночь</button>
+</div>
+<div class="mode-note" id="modeNote">Раскладка: А · Палитра: DeepSeek</div>
+
+<!-- ========== ОБЩИЕ БЛОКИ ========== -->
+<div class="preview-wrap">
+  <header class="ph-head">
+    <span class="ph-logo">Album</span>
+    <nav class="ph-nav">
+      <span class="on">Альбомы</span><span>Все фото</span><span>♥ Избранное</span><span>🗺 Карта</span>
+    </nav>
+    <span class="ph-user"></span>
+  </header>
+
+  <!-- ========== ВАРИАНТ А ========== -->
+  <div class="view layout-a show" id="viewA">
+    <div class="hero"><div class="dots"><i class="on"></i><i></i><i></i></div></div>
+    <div class="big-label">Наш архив</div>
+    <div class="stats">
+      <div class="st"><b>128</b><span>фото</span></div>
+      <div class="st"><b>14</b><span>видео</span></div>
+      <div class="st"><b>2.4 ГБ</b><span>в архиве</span></div>
+      <div class="st"><b>2020–26</b><span>годы</span></div>
+    </div>
+    <div class="big-label">Альбомы</div>
+    <input class="search" placeholder="Поиск по фото и видео…">
+    <div class="tags"><span class="tagc">#море</span><span class="tagc on">#семья</span><span class="tagc">#праздник</span></div>
+    <div class="stack" style="margin-top:14px">
+      <div class="album"><div class="g"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div><div class="meta"><b>Отпуск 2025</b><span>август 2025 · 42 файла</span></div></div>
+      <div class="album"><div class="g"><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div></div><div class="meta"><b>День рождения</b><span>июнь 2025 · 18 файлов</span></div></div>
+      <div class="album"><div class="g"><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div></div><div class="meta"><b>Новый год</b><span>январь 2025 · 35 файлов</span></div></div>
+    </div>
+    <div class="big-label">В этот день</div>
+    <div class="til"><span><b>Воспоминания</b> · 2 года назад, 5 фото</span><span style="color:var(--ds-accent)">Смотреть →</span></div>
+    <div class="big-label">Люди на фото</div>
+    <div class="tags"><span class="tagc">👤 Мама</span><span class="tagc">👤 Папа</span><span class="tagc">👤 Коля</span></div>
+    <div class="big-label">По годам</div>
+    <div class="tl"><div class="row-year"><div class="y">2025</div><div class="thumbs"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div></div><div class="row-year"><div class="y">2024</div><div class="thumbs"><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div></div></div></div>
+    <div class="ph-foot">Семейный альбом · футер</div>
+  </div>
+
+  <!-- ========== ВАРИАНТ Б ========== -->
+  <div class="view layout-b" id="viewB">
+    <div class="hero"><div class="dots"><i class="on"></i><i></i><i></i></div></div>
+    <div class="big-label">Дашборд</div>
+    <div class="grid3">
+      <div class="card"><h4>Статистика</h4>
+        <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+          <div class="st"><b>128</b><span>фото</span></div>
+          <div class="st"><b>14</b><span>видео</span></div>
+          <div class="st"><b>2.4 ГБ</b><span>архив</span></div>
+          <div class="st"><b>7</b><span>лет</span></div>
+        </div>
+      </div>
+      <div class="card"><h4>Воспоминания</h4><div class="mini">📸 2 года назад — 5 фото.<br><span style="color:var(--ds-accent)">Открыть →</span></div></div>
+      <div class="card"><h4>Капсулы</h4><div class="mini">🔒 «Лето 2030» откроется через 4 года.</div></div>
+    </div>
+    <div class="big-label">Альбомы / каталог</div>
+    <input class="search" placeholder="Поиск по фото и видео…">
+    <div class="album-row" style="margin-top:12px">
+      <div class="album"><div class="g"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div><div class="meta"><b>Отпуск 2025</b><span>42 файла</span></div></div>
+      <div class="album"><div class="g"><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div></div><div class="meta"><b>День рождения</b><span>18 файлов</span></div></div>
+      <div class="album"><div class="g"><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div></div><div class="meta"><b>Новый год</b><span>35 файлов</span></div></div>
+      <div class="album"><div class="g"><div class="t2"></div><div class="t3"></div><div class="t4"></div><div class="t1"></div></div><div class="meta"><b>Школа</b><span>26 файлов</span></div></div>
+      <div class="album"><div class="g"><div class="t1"></div><div class="t4"></div><div class="t2"></div><div class="t3"></div></div><div class="meta"><b>Дача</b><span>33 файла</span></div></div>
+      <div class="album"><div class="g"><div class="t3"></div><div class="t2"></div><div class="t4"></div><div class="t1"></div></div><div class="meta"><b>Спорт</b><span>12 файлов</span></div></div>
+    </div>
+    <div class="wide2" style="margin-top:16px">
+      <div class="card"><h4>Люди на фото</h4><div class="tags"><span class="tagc">👤 Мама</span><span class="tagc">👤 Папа</span><span class="tagc">👤 Коля</span></div></div>
+      <div class="card"><h4>Теги</h4><div class="tags"><span class="tagc">#море</span><span class="tagc">#семья</span><span class="tagc">#праздник</span></div></div>
+    </div>
+    <div class="big-label">По годам</div>
+    <div class="tl"><div class="row-year"><div class="y">2025</div><div class="thumbs"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div></div><div class="row-year"><div class="y">2024</div><div class="thumbs"><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div></div></div></div>
+    <div class="ph-foot">Семейный альбом · футер</div>
+  </div>
+
+  <!-- ========== ВАРИАНТ В ========== -->
+  <div class="view layout-v" id="viewV">
+    <div class="hero"><div class="dots"><i class="on"></i><i></i><i></i></div></div>
+    <div class="asym" style="margin-top:16px">
+      <div class="left-big">
+        <div class="big-card">
+          <div class="g"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div>
+          <h4>Последний альбом — «Отпуск 2025»</h4>
+          <p>42 файла · август 2025 · свежее всего</p>
+        </div>
+        <div class="album-row">
+          <div class="album"><div class="g"><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div></div><div class="meta"><b>День рождения</b><span>18 файлов</span></div></div>
+          <div class="album"><div class="g"><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div></div><div class="meta"><b>Новый год</b><span>35 файлов</span></div></div>
+        </div>
+      </div>
+      <div class="right-col">
+        <div class="mini-card"><b>Статистика</b><br>
+          <div class="stats" style="grid-template-columns:repeat(2,1fr); margin-top:10px">
+            <div class="st"><b>128</b><span>фото</span></div>
+            <div class="st"><b>14</b><span>видео</span></div>
+            <div class="st"><b>2.4 ГБ</b><span>архив</span></div>
+            <div class="st"><b>7</b><span>лет</span></div>
+          </div>
+        </div>
+        <div class="til"><span><b>Воспоминания</b> · 2 года назад</span><span style="color:var(--ds-accent)">Смотреть →</span></div>
+        <div class="til"><span>🔒 Капсула «Лето 2030»</span></div>
+        <div class="mini-card"><b>Люди на фото</b><br>
+          <div class="tags" style="margin-top:8px"><span class="tagc">👤 Мама</span><span class="tagc">👤 Папа</span><span class="tagc">👤 Коля</span></div>
+        </div>
+        <input class="search" placeholder="Поиск…">
+      </div>
+    </div>
+    <div class="big-label">По годам</div>
+    <div class="tl"><div class="row-year"><div class="y">2025</div><div class="thumbs"><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div><div class="t1"></div><div class="t2"></div><div class="t3"></div><div class="t4"></div></div></div><div class="row-year"><div class="y">2024</div><div class="thumbs"><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div><div class="t2"></div><div class="t3"></div><div class="t1"></div><div class="t4"></div></div></div></div>
+    <div class="ph-foot">Семейный альбом · футер</div>
+  </div>
+</div>
+
+<script>
+  const notes = {
+    a: 'Стопка — всё друг под другом',
+    b: 'Сетка — герой + дашборд карточек',
+    v: 'Асимметрия — большой блок + мелкие рядом'
+  };
+  const palNames = {
+    deepseek: 'DeepSeek', warm: 'Тёплый', teal: 'Бирюза', forest: 'Лес',
+    blush: 'Розовый', vk: 'Классика VK', night: 'Ночь'
+  };
+  let curMode = 'a';
+  let curPalette = 'deepseek';
+
+  document.querySelectorAll('.mode-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      curMode = btn.dataset.mode;
+      showView();
+    });
+  });
+
+  document.querySelectorAll('.color-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.color-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      curPalette = btn.dataset.palette;
+      document.body.dataset.palette = curPalette;
+      showNote();
+    });
+  });
+
+  function showView() {
+    document.querySelectorAll('.view').forEach((v) => v.classList.remove('show'));
+    document.getElementById(curMode === 'a' ? 'viewA' : curMode === 'b' ? 'viewB' : 'viewV').classList.add('show');
+    showNote();
+  }
+  function showNote() {
+    document.getElementById('modeNote').textContent =
+      `Раскладка ${curMode.toUpperCase()} — ${notes[curMode]} · Палитра: ${palNames[curPalette]}`;
+  }
+  showView();
+</script>
+</body>
+</html>

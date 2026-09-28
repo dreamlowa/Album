@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка — Вариант 2: Минимализм</title>
+<style>
+  /* Вариант 2: Минимализм — тонкая белая/чёрная рамка, как современный цифровой дисплей */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1a1a1a;font-family:'Segoe UI',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .frame{
+    background:#f5f5f5;
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 30px 70px rgba(0,0,0,.7), 0 0 0 1px #ddd;
+  }
+  .screen{
+    width:min(90vw,800px);
+    aspect-ratio:16/10;
+    background:#0d0d0d;
+    border-radius:6px;
+    overflow:hidden;
+    position:relative;
+  }
+  .photo{
+    position:absolute;inset:0;
+    background-size:contain;   /* фото целиком, без обрезки */
+    background-position:center;
+    background-repeat:no-repeat;
+    transition:opacity 1s ease;
+    opacity:0;
+  }
+  .photo.active{opacity:1}
+  .clock{
+    position:absolute;top:20px;left:24px;
+    color:#fff;font-size:38px;font-weight:200;letter-spacing:2px;
+    text-shadow:0 2px 12px rgba(0,0,0,.7);
+    font-variant-numeric:tabular-nums;
+  }
+  .date{
+    position:absolute;bottom:18px;left:24px;
+    color:rgba(255,255,255,.85);font-size:16px;font-weight:300;letter-spacing:1px;
+    text-shadow:0 1px 8px rgba(0,0,0,.7);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="screen" id="screen">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+  </div>
+</div>
+<script>
+const PHOTOS=[
+  {bg:'linear-gradient(135deg,#e8e2f8 0 60%,#fff 60% 100%)',label:'День 14.09.2025'},
+  {bg:'radial-gradient(circle at 30% 30%,#b8d8f0,#5a8fb0)',label:'День 03.07.2025'},
+  {bg:'linear-gradient(160deg,#1b2a3a,#3a5a7a)',label:'День 22.06.2025'},
+];
+let i=0;
+const screen=document.getElementById('screen');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;screen.appendChild(d);});
+function show(){document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));screen.children[i].classList.add('active');document.getElementById('date').textContent=PHOTOS[i].label;i=(i+1)%PHOTOS.length;}
+setInterval(()=>{const n=new Date();document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');},1000);
+show();setInterval(show,6000);
+</script>
+</body>
+</html>

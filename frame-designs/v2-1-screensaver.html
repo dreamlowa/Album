@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка v2 — 1. Заставка</title>
+<style>
+  /* Концепт 1 «Заставка»: чистое фото во весь экран, эффект Кена Бёрнса (медленный зум),
+     ничего кроме фото и еле заметных часов, которые появляются и тают */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh}
+  .stage{position:fixed;inset:0;overflow:hidden;background:#000}
+  .photo{
+    position:absolute;inset:-4%;
+    background-size:cover;background-position:center;
+    opacity:0;
+    transition:opacity 2.4s ease;
+  }
+  .photo.active{opacity:1;animation:kenburns 18s ease-out forwards}
+  @keyframes kenburns{
+    from{transform:scale(1.0) translate(0,0)}
+    to{transform:scale(1.12) translate(-1.5%,-1%)}
+  }
+  .hud{
+    position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;
+    display:flex;justify-content:flex-end;padding:26px;
+    opacity:0;transition:opacity 1.5s ease;
+  }
+  .hud.show{opacity:1}
+  .clock{
+    color:rgba(255,255,255,.92);font-size:clamp(34px,4.5vw,60px);font-weight:200;
+    letter-spacing:3px;text-shadow:0 2px 20px rgba(0,0,0,.55);
+    font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .date{color:rgba(255,255,255,.7);font-size:clamp(13px,1.4vw,18px);font-weight:300;letter-spacing:2px;margin-top:8px;text-transform:uppercase;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="hud" id="hud">
+    <div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+    </div>
+  </div>
+</div>
+<script>
+const PHOTOS=[
+  'linear-gradient(160deg,#0f2027,#203a43,#2c5364)',
+  'linear-gradient(135deg,#1a2a1a,#2e4c3e,#4a7c59)',
+  'linear-gradient(150deg,#2b1f1a,#5a4030,#8a6247)',
+  'linear-gradient(140deg,#1f1a2b,#3d3460,#6a5a9a)',
+];
+const stage=document.getElementById('stage');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p;stage.appendChild(d);});
+let i=0;
+function show(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.photo')[i].classList.add('active');
+  i=(i+1)%PHOTOS.length;
+}
+setInterval(()=>{const n=new Date();
+  document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('date').textContent=n.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+},1000);
+// HUD появляется на 5 сек, потом тает
+const hud=document.getElementById('hud');
+setInterval(()=>{hud.classList.add('show');setTimeout(()=>hud.classList.remove('show'),5000);},30000);
+show();setInterval(show,18000);
+</script>
+</body>
+</html>

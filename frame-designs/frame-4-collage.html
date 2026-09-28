@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка — Вариант 4: Коллаж</title>
+<style>
+  /* Вариант 4: Коллаж — несколько фото на экране, как вырезки на стене */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#d2cdc4;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .wall{
+    width:min(95vw,860px);
+    aspect-ratio:16/10.5;
+    background:#e3ddd3;
+    border-radius:8px;
+    padding:18px;
+    box-shadow:0 30px 70px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.3);
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr 1fr;
+    grid-template-rows:1fr 0.8fr 1.2fr;
+    gap:10px;
+    position:relative;
+    overflow:hidden;
+  }
+  .wall::before{ /* лёгкая тень «стены» */
+    content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(0,0,0,.02) 30px,rgba(0,0,0,.02) 31px);pointer-events:none;
+  }
+  .polaroid{
+    background:#fff;padding:6px 6px 18px 6px;border-radius:3px;box-shadow:2px 4px 14px rgba(0,0,0,.2);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:all .5s ease;
+    background-size:cover;background-position:center;
+  }
+  .polaroid:not(.placeholder)::after{content:'';display:block;width:70%;height:14px;margin:6px auto 2px;background:rgba(200,200,200,.3);border-radius:2px}
+  .polaroid p{font-size:11px;color:#888;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wall" id="wall"></div>
+<script>
+const TINTS=['#f7c8b8','#a8d8ea','#c9b6e4','#b5d6b5','#fde8c8'];
+setInterval(()=>{
+  document.querySelectorAll('.polaroid:not(.placeholder)').forEach((el,i)=>{
+    el.style.background=`linear-gradient(135deg,${TINTS[(i+Math.floor(Date.now()/6000))%TINTS.length]},${TINTS[(i+1+Math.floor(Date.now()/6000))%TINTS.length]})`;
+  });
+},6000);
+// начальная отрисовка
+const wall=document.getElementById('wall');
+wall.innerHTML='';
+[1,2,3,4,5].forEach((n,i)=>{
+  const p=document.createElement('div');p.className='polaroid';
+  p.style.background=`linear-gradient(135deg,${TINTS[i%TINTS.length]},${TINTS[(i+1)%TINTS.length]})`;
+  if(n===5)p.classList.add('placeholder');
+  wall.appendChild(p);
+});
+</script>
+</body>
+</html>

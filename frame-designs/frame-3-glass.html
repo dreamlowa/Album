@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка — Вариант 3: Стекло</title>
+<style>
+  /* Вариант 3: «Стекло» — тонкая металлическая рамка, зеркальный блик, тёмное стекло */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0e1116;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .frame{
+    background:linear-gradient(145deg,#dfe3e8,#9aa3ad 50%,#7a838e);
+    border-radius:22px;
+    padding:16px;
+    box-shadow:0 30px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.15), inset 0 2px 3px rgba(255,255,255,.6), inset 0 -3px 5px rgba(0,0,0,.4);
+  }
+  .screen{
+    width:min(90vw,800px);
+    aspect-ratio:16/10;
+    background:#000;
+    border-radius:12px;
+    overflow:hidden;
+    position:relative;
+  }
+  /* Стеклянный блик поверх фото */
+  .glass{
+    position:absolute;inset:0;pointer-events:none;z-index:5;
+    background:linear-gradient(115deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.10) 50%, rgba(255,255,255,0) 58%);
+  }
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;
+    background-position:center;
+    transition:opacity 1.5s ease;
+    opacity:0;
+  }
+  .photo.active{opacity:1}
+  .badge{
+    position:absolute;top:16px;right:18px;z-index:6;
+    color:rgba(255,255,255,.9);font-size:11px;letter-spacing:3px;text-transform:uppercase;
+    background:rgba(0,0,0,.35);padding:5px 12px;border-radius:3px;backdrop-filter:blur(4px);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="screen">
+    <div class="badge">family</div>
+  </div>
+  <div class="glass"></div>
+</div>
+<script>
+const PHOTOS=[
+  'linear-gradient(135deg,#2a3b4c,#5b7d99)',
+  'linear-gradient(135deg,#4a3f4f,#8d7aa0)',
+  'linear-gradient(135deg,#1f3d2e,#4e7d63)',
+  'linear-gradient(135deg,#3d2b25,#7d5b4c)',
+];
+const screen=document.querySelector('.screen');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p;screen.appendChild(d);});
+let i=0;
+function show(){screen.querySelectorAll('.photo').forEach(x=>x.classList.remove('active'));screen.querySelectorAll('.photo')[i].classList.add('active');i=(i+1)%PHOTOS.length;}
+show();setInterval(show,5500);
+</script>
+</body>
+</html>

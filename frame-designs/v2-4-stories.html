@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фоторамка v2 — 4. Истории</title>
+<style>
+  /* Концепт 4 «Истории»: как stories в соцсетях — фото вертикально на весь экран,
+     сверху прогресс-бар времени, внизу подпись. Плавная смена. */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh}
+  .stage{position:fixed;inset:0;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+  .photo{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1s ease;
+  }
+  .photo.active{opacity:1}
+  /* прогресс-бары */
+  .progress{position:fixed;top:0;left:0;right:0;display:flex;gap:6px;padding:14px;z-index:7}
+  .prog{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:#fff;border-radius:2px}
+  .prog.cur i{animation:fill 10s linear forwards}
+  @keyframes fill{to{width:100%}}
+  .caption{
+    position:absolute;bottom:0;left:0;right:0;z-index:6;
+    background:linear-gradient(transparent,rgba(0,0,0,.75));
+    color:#fff;padding:50px 24px 26px;
+    font-size:clamp(16px,2vw,24px);font-weight:300;letter-spacing:.5px;
+  }
+  .meta{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="progress" id="progress"></div>
+<div class="caption" id="caption"></div>
+<script>
+const PHOTOS=[
+  {bg:'linear-gradient(160deg,#0d2438,#1d4a6e,#2f7ba0)',d:'июль 2025',c:'Море и ветер'},
+  {bg:'linear-gradient(140deg,#3a2412,#7a542a,#a87d3f)',d:'август 2025',c:'Наш сад'},
+  {bg:'linear-gradient(155deg,#1f2e1a,#3f6733,#5f9a4e)',d:'май 2025',c:'Поездка на дачу'},
+  {bg:'linear-gradient(150deg,#33204a,#5e3a86,#8a5ab0)',d:'июнь 2025',c:'Выпускной'},
+];
+const stage=document.getElementById('stage');
+PHOTOS.forEach(p=>{const d=document.createElement('div');d.className='photo';d.style.background=p.bg;stage.appendChild(d);});
+const prog=document.getElementById('progress');
+function buildProg(cur){
+  prog.innerHTML='';
+  PHOTOS.forEach((_,k)=>{
+    const p=document.createElement('div');p.className='prog'+(k===cur?' cur':'');
+    p.innerHTML=k<cur?'<i style="width:100%"></i>':(k===cur?'<i style="width:0;animation:fill 10s linear forwards"></i>':'');
+    prog.appendChild(p);
+  });
+}
+let i=0;
+function show(){
+  document.querySelectorAll('.photo').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.photo')[i].classList.add('active');
+  document.getElementById('caption').innerHTML=`<span class="meta">${PHOTOS[i].d}</span>${PHOTOS[i].c}`;
+  buildProg(i);
+  i=(i+1)%PHOTOS.length;
+}
+show();setInterval(show,10000);
+</script>
+</body>
+</html>

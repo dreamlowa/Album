@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Семейный архив — предпросмотр дизайна</title>
+<style>
+/* ===== Пастельная тема (всё встроено для предпросмотра) ===== */
+:root {
+  --bg:#faf3ed; --surface:#fffcf8; --text:#4a3f3a; --text-light:#8a7a72;
+  --primary:#c9b6e4; --primary-dark:#ac96cc; --accent:#f7c8b8;
+  --danger:#e8a9a9; --success:#b5d6b5; --border:#e8ddd3;
+  --radius:16px; --tap:48px;
+  --sh:0 2px 8px rgba(74,63,58,.06), 0 6px 24px rgba(74,63,58,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-tap-highlight-color:transparent}
+img,video{max-width:100%;display:block}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;touch-action:manipulation}
+.hidden{display:none!important}
+
+/* Шапка */
+.topbar{position:sticky;top:0;z-index:50;background:#e8ddd3;box-shadow:0 1px 4px rgba(74,63,58,.06)}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.1rem}
+.brand-icon{font-size:1.5rem}
+.topnav{display:flex;gap:4px;order:3;width:100%}
+.nav-btn{flex:1;min-height:var(--tap);padding:8px 12px;border-radius:12px;color:var(--text-light);font-weight:600;font-size:.95rem}
+.nav-btn.active{background:var(--accent);color:var(--text)}
+.topbar-actions{margin-left:auto;display:flex;gap:8px}
+
+/* Кнопки */
+.btn{min-height:var(--tap);padding:10px 22px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;transition:all .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:var(--text)}
+.btn-ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+.btn-danger{background:var(--danger);color:var(--text)}
+.btn-lg{min-height:56px;font-size:1.1rem}
+.icon-btn{width:var(--tap);height:var(--tap);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,252,248,.85);color:var(--text)}
+
+/* Контейнер */
+.container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.view-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.view-head h1{font-size:1.5rem}
+
+/* Поиск + чипсы */
+.search-bar{margin-bottom:14px}
+.search-bar input{width:100%;min-height:var(--tap);padding:10px 18px;font-size:1rem;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text)}
+.album-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px}
+.chip{flex:0 0 auto;min-height:var(--tap);padding:8px 18px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-weight:600}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* Сетка галереи */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+@media(max-width:600px){.gallery{grid-template-columns:repeat(2,1fr);gap:12px}}
+@media(max-width:360px){.gallery{grid-template-columns:1fr}}
+.media-card{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--sh);aspect-ratio:1/1;cursor:pointer;transition:transform .15s}
+.media-card:active{transform:scale(.97)}
+.media-card .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem}
+.media-card .badge{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:600;pointer-events:none}
+.media-card .date{position:absolute;bottom:8px;left:8px;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:999px;font-size:.72rem;color:var(--text-light);pointer-events:none}
+
+/* Светбокс */
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(255,252,248,.96);display:flex;flex-direction:column;backdrop-filter:blur(8px)}
+.lb-top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;z-index:2}
+.lb-counter{font-weight:600}
+.lb-stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:0 8px}
+.lb-stage .ph{max-width:92%;max-height:88%;aspect-ratio:1/1;border-radius:12px;box-shadow:0 8px 40px rgba(74,63,58,.12);display:flex;align-items:center;justify-content:center;font-size:6rem;flex:0 1 auto}
+.lb-bottom{display:flex;justify-content:center;gap:10px;padding:12px;flex-wrap:wrap}
+.lb-bottom .btn{background:var(--surface);border-color:var(--border)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3}
+.lb-prev{left:8px}.lb-next{right:8px}
+
+/* Карточки альбомов/людей */
+.subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+@media(max-width:480px){.subgrid{grid-template-columns:repeat(2,1fr)}}
+.album-card,.person-card{background:var(--surface);border-radius:16px;padding:20px 14px;box-shadow:var(--sh);text-align:center;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.album-card .ico{font-size:2rem}
+.album-card .t,.person-name{font-weight:700}
+.album-card .m,.person-count{color:var(--text-light);font-size:.8rem}
+.person-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#c9b6e4,#f7c8b8);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff}
+
+/* Тост */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);padding:12px 28px;border-radius:999px;font-weight:600;z-index:300;box-shadow:var(--sh);border:1px solid var(--border)}
+
+/* Мок-секции людей */
+.muted{color:var(--text-light);font-size:.9rem}
+.view{margin-top:20px}
+.view h2{font-size:1.2rem;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- ===== Шапка ===== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-icon">📷</span><span>Семейный архив</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-lg" onclick="toast('В реальном проекте здесь форма входа')">Войти</button>
+    </div>
+    <nav class="topnav">
+      <button class="nav-btn active" onclick="switchTab(this,'gallery')">Фото</button>
+      <button class="nav-btn" onclick="switchTab(this,'albums')">Альбомы</button>
+      <button class="nav-btn" onclick="switchTab(this,'persons')">Люди</button>
+      <button class="nav-btn" onclick="switchTab(this,'admin')">Управление</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ===== Галерея ===== -->
+  <section id="tab-gallery" class="view">
+    <div class="view-head">
+      <h1>Все фото и видео</h1>
+      <button class="btn btn-primary btn-lg" onclick="toast('В реальном проекте — выбор файлов')">Добавить фото</button>
+    </div>
+    <div class="search-bar"><input type="search" placeholder="Поиск по названию…"></div>
+    <div class="album-chips">
+      <button class="chip active">Все фото</button>
+      <button class="chip">Семья</button>
+      <button class="chip">Отпуск 2025</button>
+      <button class="chip">Выпускной</button>
+    </div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- ===== Альбомы ===== -->
+  <section id="tab-albums" class="view hidden">
+    <div class="view-head"><h1>Альбомы</h1><button class="btn btn-primary" onclick="toast('Создание альбома — в реальном проекте')">Новый альбом</button></div>
+    <div class="subgrid">
+      <div class="album-card"><div class="ico">📁</div><div class="t">Семья</div><div class="m">128 фото</div></div>
+      <div class="album-card"><div class="ico">🏖️</div><div class="t">Отпуск 2025</div><div class="m">342 фото</div></div>
+      <div class="album-card"><div class="ico">🎓</div><div class="t">Выпускной</div><div class="m">56 фото</div></div>
+      <div class="album-card"><div class="ico">🎂</div><div class="t">Дни рождения</div><div class="m">89 фото</div></div>
+    </div>
+  </section>
+
+  <!-- ===== Люди ===== -->
+  <section id="tab-persons" class="view hidden">
+    <div class="view-head"><h1>Люди</h1></div>
+    <p class="muted" style="margin-bottom:16px">Фото автоматически группируются по лицам. Нажмите на человека — увидите его снимки.</p>
+    <div class="subgrid" id="persons-grid"></div>
+  </section>
+
+  <!-- ===== Управление ===== -->
+  <section id="tab-admin" class="view hidden">
+    <div class="view-head"><h1>Управление архивом</h1></div>
+    <div class="album-chips">
+      <button class="chip active">Пользователи</button>
+      <button class="chip">Корзина</button>
+    </div>
+    <div class="subgrid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+      <div class="album-card"><div class="t">👤 Бабушка Люда</div><div class="m">Гость — только смотреть</div></div>
+      <div class="album-card"><div class="t">👤 Папа</div><div class="m">Редактор — добавлять и удалять</div></div>
+      <div class="album-card"><div class="t">👤 Администратор</div><div class="m">Полный доступ</div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== Светбокс ===== -->
+<div id="lightbox" class="lightbox hidden">
+  <div class="lb-top">
+    <span class="lb-counter" id="lb-counter"></span>
+    <button class="icon-btn" onclick="closeLb()">✕</button>
+  </div>
+  <button class="icon-btn lb-nav lb-prev" onclick="lbMove(-1)">‹</button>
+  <div class="lb-stage" id="lb-stage"></div>
+  <button class="icon-btn lb-nav lb-next" onclick="lbMove(1)">›</button>
+  <div class="lb-bottom">
+    <button class="btn btn-ghost" onclick="toast('Редактирование: кадрирование и фильтры')">✂️ Редактировать</button>
+    <button class="btn btn-ghost" onclick="toast('Скачать оригинал')">⬇ Скачать</button>
+    <button class="btn btn-danger" onclick="toast('В реальном проекте — подтверждение «Вы уверены?»')">🗑 Удалить</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+// ===== Мок-данные: пастельные градиенты вместо фото =====
+const MOCK = [
+  {e:'🏖️', g:'linear-gradient(135deg,#f7c8b8,#fde2d7)', t:'Отпуск, море'},
+  {e:'🎂', g:'linear-gradient(135deg,#c9b6e4,#e6dcf5)', t:'День рождения'},
+  {e:'🌳', g:'linear-gradient(135deg,#b5d6b5,#dcefdc)', t:'Прогулка в парке'},
+  {e:'🐱', g:'linear-gradient(135deg,#fde8c8,#fdf3e0)', t:'Кот Барсик'},
+  {e:'🎓', g:'linear-gradient(135deg,#c9b6e4,#a8d8ea)', t:'Выпускной'},
+  {e:'❄️', g:'linear-gradient(135deg,#a8d8ea,#d9eef7)', t:'Зима 2024'},
+  {e:'🏠', g:'linear-gradient(135deg,#f7c8b8,#e8ddd3)', t:'Наш дом'},
+  {e:'🌷', g:'linear-gradient(135deg,#f3c8d8,#fde2ec)', t:'Весна, цветы'},
+];
+const PERSONS = [
+  {n:'Бабушка Люда', c:'48 фото'},
+  {n:'Папа', c:'92 фото'},
+  {n:'Маша', c:'37 фото'},
+  {n:'Кто-то (переименуйте)', c:'5 фото'},
+];
+
+const gallery = document.getElementById('gallery');
+MOCK.forEach((m,i)=>{
+  const c=document.createElement('div');
+  c.className='media-card';
+  c.innerHTML=`<div class="ph" style="background:${m.g}">${m.e}</div>
+    <span class="badge">${i%3===0?'▶ Видео':'🖼 Фото'}</span>
+    <span class="date">12 мая 2025</span>`;
+  c.onclick=()=>openLb(i);
+  gallery.appendChild(c);
+});
+
+const pg=document.getElementById('persons-grid');
+PERSONS.forEach(p=>{
+  const c=document.createElement('div');
+  c.className='person-card';
+  c.innerHTML=`<div class="person-av">👤</div><div class="person-name">${p.n}</div><div class="person-count">${p.c}</div>`;
+  c.onclick=()=>toast('Откроются фото этого человека');
+  pg.appendChild(c);
+});
+
+// ===== Светбокс =====
+let lbIdx=0;
+function openLb(i){lbIdx=i;renderLb();document.getElementById('lightbox').classList.remove('hidden');document.body.style.overflow='hidden'}
+function closeLb(){document.getElementById('lightbox').classList.add('hidden');document.body.style.overflow=''}
+function lbMove(d){lbIdx=(lbIdx+d+MOCK.length)%MOCK.length;renderLb()}
+function renderLb(){
+  const m=MOCK[lbIdx];
+  document.getElementById('lb-counter').textContent=`${lbIdx+1} / ${MOCK.length}`;
+  document.getElementById('lb-stage').innerHTML=`<div class="ph" style="background:${m.g}">${m.e}</div>`;
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('lightbox').classList.contains('hidden'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowLeft')lbMove(-1);
+  if(e.key==='ArrowRight')lbMove(1);
+});
+// свайпы
+let sx=0,sy=0;
+document.getElementById('lightbox').addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+document.getElementById('lightbox').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)lbMove(dx<0?1:-1);
+},{passive:true});
+
+// ===== Вкладки =====
+function switchTab(btn,name){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['gallery','albums','persons','admin'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden',t!==name);
+  });
+}
+
+// ===== Тост =====
+let tt;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.remove('hidden');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.add('hidden'),2600);
+}
+</script>
+</body>
+</html>
