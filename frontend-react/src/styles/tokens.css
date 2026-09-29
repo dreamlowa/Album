@@ -1,0 +1,54 @@
+/* Глобальные токены дизайна (тёплый «семейный» стиль) */
+:root {
+  /* фон и поверхности */
+  --bg: #FDFBF7;
+  --surface: #FFFFFF;
+  --surface-muted: #F6F2EA;
+  --border: #EDE8DF;
+
+  /* текст */
+  --text: #2C2C2C;
+  --text-muted: #7A7568;
+  --text-faint: #A8A197;
+
+  /* акценты */
+  --accent: #D75A4A;
+  --accent-dark: #C24A3B;
+  --green: #2ECC71;
+  --orange: #FF9F1C;
+  --red: #FF4D4D;
+
+  /* тёмная тема */
+  --dark-bg: #211D18;
+  --dark-surface: #2B2620;
+  --dark-border: #3A342B;
+  --dark-text: #EFE9DF;
+  --dark-muted: #A89C8B;
+
+  /* тени и радиусы */
+  --shadow-card: 0 6px 20px rgba(44,44,44,.08);
+  --shadow-card-hover: 0 12px 28px rgba(44,44,44,.14);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+
+  /* типографика */
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --fs-title: 30px;
+  --fs-h2: 22px;
+  --fs-body: 15px;
+  --fs-small: 13px;
+  --fs-tiny: 11px;
+}
+
+html[data-theme='dark'] {
+  --bg: var(--dark-bg);
+  --surface: var(--dark-surface);
+  --surface-muted: #332D25;
+  --border: var(--dark-border);
+  --text: var(--dark-text);
+  --text-muted: var(--dark-muted);
+  --text-faint: #7A7368;
+  --shadow-card: 0 6px 20px rgba(0,0,0,.3);
+  --shadow-card-hover: 0 12px 28px rgba(0,0,0,.45);
+}

@@ -1,0 +1,80 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #FDFBF7; color: #2C2C2C; }
+
+/* ---- Экран входа ---- */
+.auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #FDFBF7; padding: 20px; }
+.auth-card { width: 100%; max-width: 360px; background: #fff; border-radius: 20px; padding: 32px 28px; box-shadow: 0 20px 50px rgba(44,44,44,.1); text-align: center; }
+.auth-brand { font-size: 32px; font-weight: 800; margin: 0 0 4px; color: #D75A4A; letter-spacing: -1px; }
+.auth-sub { color: #8A8378; margin: 0 0 22px; font-size: 14px; }
+.auth-tabs { display: flex; gap: 6px; border-radius: 12px; background: #f2efe8; padding: 4px; margin-bottom: 18px; }
+.auth-tab { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; color: #8A8378; }
+.auth-tab.active { background: #fff; color: #2C2C2C; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+.auth-error { color: #c7250e; font-size: 13px; margin-bottom: 12px; }
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-input { border: 1px solid #E8E3D8; border-radius: 12px; padding: 12px 14px; font-size: 15px; background: #fff; color: #2C2C2C; }
+.auth-input:focus { outline: 2px solid #D75A4A; border-color: transparent; }
+.auth-submit { background: #D75A4A; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.auth-submit:disabled { opacity: .6; cursor: default; }
+.auth-hint { color: #8A8378; font-size: 12px; margin-top: 14px; }
+
+/* ---- Приложение ---- */
+.app { min-height: 100vh; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: rgba(255,255,255,.9); border-bottom: 1px solid #EDE8DF; position: sticky; top: 0; z-index: 10; }
+.brand { display: flex; flex-direction: column; line-height: 1.2; }
+.brand-name { font-weight: 800; font-size: 19px; color: #D75A4A; }
+.brand-tag { font-size: 11px; color: #8A8378; }
+.top-user { display: flex; align-items: center; gap: 12px; }
+.user-name { font-size: 14px; font-weight: 600; }
+.logout { background: none; border: 1px solid #E8E3D8; color: #8A8378; border-radius: 10px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
+
+.content { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+.section-title { font-size: 26px; font-weight: 800; margin: 0 0 20px; letter-spacing: -.5px; }
+.muted { color: #8A8378; }
+.album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+@media (max-width: 900px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .album-grid { grid-template-columns: 1fr; } }
+.album-card { border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 6px 20px rgba(44,44,44,.08); transition: transform .3s ease, box-shadow .3s ease; }
+.album-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(44,44,44,.14); }
+.album-cover { aspect-ratio: 4/3; background: #f2efe8; }
+.album-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.album-cover-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: #8A8378; }
+.album-info { padding: 12px 14px 14px; }
+.album-info h3 { margin: 0 0 4px; font-size: 16px; }
+.album-count { font-size: 13px; color: #8A8378; }
+.app-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: #8A8378; }
+
+/* ---- Главы-годы ---- */
+.chapters { display: flex; flex-direction: column; gap: 28px; }
+.chapter { }
+.chapter-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.chapter-year { font-size: 40px; font-weight: 800; color: #D75A4A; letter-spacing: -1px; }
+.chapter-dash { color: #2C2C2C; opacity: .5; }
+.chapter-desc { font-size: 16px; color: #2C2C2C; }
+.chapter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 700px) { .chapter-grid { grid-template-columns: repeat(3, 1fr); } }
+.chapter-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(44,44,44,.08); }
+
+/* ---- Галерея ---- */
+.gallery { display: flex; flex-direction: column; height: 100vh; }
+.gallery-top { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: #fff; border-bottom: 1px solid #EDE8DF; }
+.gallery-title { flex: 1; font-weight: 700; font-size: 16px; }
+.back, .nav { background: none; border: 1px solid #E8E3D8; border-radius: 10px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #555; }
+.counter { color: #8A8378; font-size: 13px; }
+.gallery-main { flex: 1; display: flex; align-items: center; justify-content: center; background: #211d18; position: relative; min-height: 0; }
+.gallery-main img { max-width: 92%; max-height: 92%; object-fit: contain; border-radius: 8px; }
+.fav { position: absolute; top: 16px; right: 20px; font-size: 30px; background: none; border: none; color: #FFB400; cursor: pointer; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.gallery-nav { display: flex; justify-content: center; gap: 12px; padding: 12px; background: #211d18; }
+.gallery-nav .nav { background: rgba(255,255,255,.1); color: #fff; border-color: transparent; font-size: 22px; padding: 6px 18px; }
+
+/* ---- Профиль ---- */
+.profile-overlay { position: fixed; inset: 0; background: rgba(10,12,16,.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+.profile-card { background: #fff; border-radius: 20px; width: 100%; max-width: 380px; padding: 24px; text-align: center; }
+.profile-top { display: flex; justify-content: space-between; align-items: center; }
+.profile-title { font-weight: 800; font-size: 17px; }
+.profile-close { background: none; border: none; font-size: 18px; color: #888; cursor: pointer; }
+.profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: #D75A4A; color: #fff; font-size: 40px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 16px auto 8px; }
+.profile-email { color: #8A8378; font-size: 14px; }
+.profile-role { display: inline-block; margin: 12px auto 18px; background: #FFF8E1; color: #5D4037; border-radius: 12px; padding: 7px 14px; font-size: 13px; font-weight: 700; }
+.profile-form { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.pf-label { font-size: 12px; color: #8A8378; margin-top: 6px; }
+.pf-ta { min-height: 70px; resize: vertical; }

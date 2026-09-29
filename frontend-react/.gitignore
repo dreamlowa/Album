@@ -1,0 +1,9 @@
+# Зависимости и сборки не пушим
+node_modules/
+dist/
+dev.log
+
+# Локальные переменные
+.env
+.env.*
+!.env.example
