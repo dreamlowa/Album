@@ -76,9 +76,19 @@ async function doLogin() {
 }
 
 async function doRegister() {
-  // Только админ может создавать пользователей (или ссылка-приглашение).
-  // Здесь показываем подсказку.
-  showError('Регистрация закрыта: учётную запись создаёт администратор. Войдите как admin (пароль admin) или получите ссылку-приглашение.');
+  const name = $('reg-name').value.trim();
+  const email = $('reg-email').value.trim();
+  const password = $('reg-password').value;
+  const msg = $('auth-error');
+  if (!name || !email || !password) { showError('Заполните имя, email и пароль.'); return; }
+  if (password.length < 8) { showError('Пароль должен быть не короче 8 символов.'); return; }
+  try {
+    const data = await api('/api/auth/register', { method: 'POST', body: { email, password, name }, token: false });
+    showError('Аккаунт создан ✓. Войдите со своим логином.');
+    setTimeout(() => switchTab('login'), 1200);
+  } catch (err) {
+    showError(err.message);
+  }
 }
 
 // Восстановление пароля: шаг 1 — запросить ссылку по логину

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -83,7 +83,9 @@ if (!useMinio) {
   console.log('Локальный режим: раздаю файлы через /api/files/*');
 
   // ---------- Раздача фронтенда (только local) ----------
-  const publicDir = join(PROJECT_ROOT, 'frontend', 'public');
+  // Если есть React-сборка (frontend-react-dist) — используем её, иначе старый vanilla.
+  const reactDist = join(PROJECT_ROOT, 'frontend-react-dist');
+  const publicDir = existsSyncSafe(reactDist) ? reactDist : join(PROJECT_ROOT, 'frontend', 'public');
   // Запрещаем кэширование HTML/JS/CSS, чтобы браузер всегда брал свежую версию
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
@@ -99,6 +101,10 @@ if (!useMinio) {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.sendFile(join(publicDir, 'index.html'));
   });
+}
+
+function existsSyncSafe(p) {
+  try { return existsSync(p); } catch { return false; }
 }
 
 // ---------- Запуск ----------

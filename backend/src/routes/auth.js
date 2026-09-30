@@ -44,19 +44,15 @@ function isImage(buf) {
 }
 
 /**
- * POST /api/auth/register — создать пользователя (только админ)
- * Body: { email, password, name, role }
+ /**
+ * POST /api/auth/register — открытая регистрация гостя (только просмотр).
+ * Роль всегда 'guest' — редактором/админом делает владелец вручную.
+ * Body: { email, password, name }
  */
-router.post('/register', requireAuth, async (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Только администратор может создавать пользователей' });
-  }
-  const { email, password, name, role = 'guest' } = req.body || {};
+router.post('/register', async (req, res) => {
+  const { email, password, name } = req.body || {};
   if (!email || !password || !name) {
     return res.status(400).json({ error: 'Заполните email, пароль и имя' });
-  }
-  if (!['admin', 'editor', 'guest'].includes(role)) {
-    return res.status(400).json({ error: 'Недопустимая роль' });
   }
   if (String(password).length < 8) {
     return res.status(400).json({ error: 'Пароль должен быть не короче 8 символов' });
@@ -67,9 +63,9 @@ router.post('/register', requireAuth, async (req, res) => {
 
   const password_hash = await bcrypt.hash(password, 10);
   const user = await queryOne(
-    `INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, 'guest')
      RETURNING id, email, name, role, created_at`,
-    [email, password_hash, name, role]
+    [email, password_hash, name]
   );
   res.status(201).json({ user });
 });

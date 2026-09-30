@@ -6,7 +6,7 @@
   <title>Семейный альбом</title>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Golos+Text:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=20260927aq&sw4">
+  <link rel="stylesheet" href="css/style.css?v=20260928a&sw4">
 </head>
 <body>
   <div class="top-progress" id="topProgress"></div>
@@ -90,13 +90,10 @@
       </div>
       <div class="form-group">
         <label>Кто вы в семье?</label>
-        <select class="form-input" id="reg-role">
-          <option value="guest">Гость — только смотреть</option>
-          <option value="editor">Близкий — добавлять фото</option>
-        </select>
+        <div class="form-input" style="color:var(--fb-gray-500)">Гость — только смотреть</div>
       </div>
       <button class="btn-green" onclick="doRegister()">Зарегистрироваться</button>
-      <div class="auth-hint">Новую учётную запись может создать только администратор (или по ссылке-приглашению).</div>
+      <div class="auth-hint">Регистрация открывает доступ к просмотру альбомов. Добавлять фото может только владелец архива.</div>
     </div>
   </div>
 
@@ -419,6 +416,6 @@
     <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
   </svg>
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/app.js?v=20260927aq&sw4"></script>
+  <script src="js/app.js?v=20260928a&sw4"></script>
 </body>
 </html>
